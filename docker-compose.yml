@@ -1,0 +1,9 @@
+services:
+  server:
+    build: .
+    ports:
+      - 8080:80
+    volumes:
+      - type: bind
+        source: ./src
+        target: /app/src
