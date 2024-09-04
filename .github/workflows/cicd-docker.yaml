@@ -21,6 +21,11 @@ jobs:
     permissions:
       packages: write
     steps:
+      - name: set lower case owner name
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+        env:
+          OWNER: '${{ github.repository_owner }}'
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -38,7 +43,7 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/node-test
+          images: ghcr.io/${{ OWNER_LC }}/node-test
 
       - name: Build et push
         uses: docker/build-push-action@v5
