@@ -5,8 +5,9 @@ name: CI/CD
   #SERVER_STAGING: "78.138.45.88"
   #SERVER_PRODUCTION: "54.37.11.162"
 env:
-  OWNER_LC: 'kevinlhuillier'
-
+  #OWNER_LC: 'kevinlhuillier'
+  SERVER_PRODUCTION_IP: "57.129.42.227"
+  SERVER_PRODUCTION_USER: "root"
 
 #concurrency: 
   #group: ${{ github.workflow }}-${{ github.ref }}
@@ -23,9 +24,9 @@ jobs:
     permissions:
       packages: write
     steps:
-      - name: set lower case owner name
-        run: |
-          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+      #- name: set lower case owner name
+      #  run: |
+      #    echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -53,3 +54,22 @@ jobs:
           context: .
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: http://$SERVER_PRODUCTION_IP
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Déployer sur le serveur de production
+        run : |
+              eval $(ssh-agent -s)
+              ssh-add - <<< "${{ secrets.VPS_KEY}}"
+              mkdir -p ~/.ssh
+              ssh-keyscan -H ${{ env.SERVER_PRODUCTION_IP}} >> ~/.ssh/known_hosts
+              scp docker-compose.production.yml ${{ env.SERVER_PRODUCTION_USER }}@${{ env.SERVER_PRODUCTION_IP}}:/root/docker-compose.production.yml
+              ssh ${{ env.SERVER_PRODUCTION_USER }}@${{ env.SERVER_PRODUCTION_IP}} "docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}"
+              ssh ${{ env.SERVER_PRODUCTION_USER }}@${{ env.SERVER_PRODUCTION_IP}} "docker compose -f /root/docker-compose.production.yml up -d --force-recreate"
