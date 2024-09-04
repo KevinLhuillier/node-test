@@ -1,0 +1,6 @@
+services:
+  server:
+    image: ghcr.io/kevinlhuillier/node-test:latest
+    ports:
+      - 8080:80
+    pull_policy: always
