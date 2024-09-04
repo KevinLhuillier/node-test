@@ -43,13 +43,13 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ env.OWNER_LC }}/node-test
+          images: ghcr.io/kevinlhuillier/node-test
 
       - name: Build et push
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ghcr.io/${{ env.OWNER_LC }}/node-test:latest
+          tags: ghcr.io/kevinlhuillier/node-test:latest
           context: .
           cache-from: type=gha
           cache-to: type=gha,mode=max
