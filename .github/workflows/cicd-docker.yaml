@@ -4,6 +4,8 @@ name: CI/CD
   #SERVER_USER: "root"
   #SERVER_STAGING: "78.138.45.88"
   #SERVER_PRODUCTION: "54.37.11.162"
+env:
+  OWNER_LC: 'kevinlhuillier'
 
 
 #concurrency: 
@@ -24,8 +26,6 @@ jobs:
       - name: set lower case owner name
         run: |
           echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
-        env:
-          OWNER: '${{ github.repository_owner }}'
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -43,7 +43,7 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ OWNER_LC }}/node-test
+          images: ghcr.io/${{ env.OWNER_LC }}/node-test
 
       - name: Build et push
         uses: docker/build-push-action@v5
